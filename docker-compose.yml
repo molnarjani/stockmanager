@@ -6,6 +6,11 @@ services:
     environment:
       KAFKA_BROKER_URL: broker:9092
 
+  service:
+    build: ./service
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+
 networks:
   default:
     external:
