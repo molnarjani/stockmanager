@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  importer:
+    build: ./importer
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+
+networks:
+  default:
+    external:
+      name: kafka-network
