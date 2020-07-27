@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "importer"
+version = "0.1.0"
+description = "service reponsible for importing stock events and transfering them to Kafka"
+authors = ["Janos Molnar <janosmolnar1001@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+python-kafka = "^2.0.1"
+
+[tool.poetry.dev-dependencies]
+ipython = "^7.16.1"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
