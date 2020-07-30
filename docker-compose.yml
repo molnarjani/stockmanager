@@ -5,6 +5,8 @@ services:
     build: ./importer
     environment:
       KAFKA_BROKER_URL: broker:9092
+    volumes:
+      - ./importer/input:/usr/app/input
 
   service:
     build: ./service
