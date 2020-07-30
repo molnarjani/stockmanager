@@ -9,8 +9,12 @@ class LoggedRegexMatchingEventHandler(RegexMatchingEventHandler):
     def on_created(self, event): 
         super().on_created(event)
         self.logger.info("CSV file created - % s" % event.src_path) 
-
+        self.process(event.src_path)
 
     def on_modified(self, event): 
         super().on_created(event)
         self.logger.info("CSV file modified - % s" % event.src_path) 
+        self.process(event.src_path)
+
+    def process(self, file_path):
+        raise NotImplementedError
