@@ -2,12 +2,16 @@ import os
 import json
 import time
 from kafka import KafkaProducer
+from kafka.errors import NoBrokersAvailable
 
 KAFKA_BROKER_URL = os.environ.get("KAFKA_BROKER_URL", 'localhost:9092')
 
-producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BROKER_URL,
-    value_serializer=lambda value: json.dumps(value).encode('utf-8'))
+try:
+    producer = KafkaProducer(
+        bootstrap_servers=KAFKA_BROKER_URL,
+        value_serializer=lambda value: json.dumps(value).encode('utf-8'))
+except NoBrokersAvailable:
+    raise ConnectionError('Could not connect to Kafka broker at {}'.format(KAFKA_BROKER_URL))
 
 def send_event(payload):
     producer.send("events", value=payload)
