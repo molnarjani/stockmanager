@@ -22,6 +22,3 @@ def send_event(payload):
 
 def send_error(payload):
     producer.send("errors", value=payload)
-
-def send_heartbeat():
-    producer.send("heartbeat", value={'tick:': 'tack'})

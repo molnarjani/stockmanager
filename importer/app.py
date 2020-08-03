@@ -5,7 +5,7 @@ from pathlib import Path
 
 from watchdog.observers import Observer 
 from helpers import LoggedRegexMatchingEventHandler
-from kafka_producers import send_event, send_heartbeat
+from kafka_producers import send_event
 
 
 def process_csv(file_path):
@@ -34,7 +34,6 @@ if __name__ == '__main__':
     try: 
         while True: 
             time.sleep(1) 
-            send_heartbeat()
     except KeyboardInterrupt: 
         observer.stop() 
     observer.join() 
