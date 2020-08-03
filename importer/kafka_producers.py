@@ -4,9 +4,13 @@ import time
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
 
-from consts import KAFKA_CONNECTION_ERROR_MESSAGE_TEMPLATE
+from consts import (
+    KAFKA_CONNECTION_ERROR_MESSAGE_TEMPLATE,
+    KAFKA_BROKER_URL,
+    KAFKA_EVENTS_TOPIC,
+    KAFKA_ERRORS_TOPIC
+)
 
-KAFKA_BROKER_URL = os.environ.get("KAFKA_BROKER_URL", 'localhost:9092')
 
 try:
     producer = KafkaProducer(
@@ -18,7 +22,7 @@ except NoBrokersAvailable:
     )
 
 def send_event(payload):
-    producer.send("events", value=payload)
+    producer.send(KAFKA_EVENTS_TOPIC, value=payload)
 
 def send_error(payload):
-    producer.send("errors", value=payload)
+    producer.send(KAFKA_ERRORS_TOPIC, value=payload)
