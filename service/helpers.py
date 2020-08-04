@@ -1,61 +1,64 @@
-import logging
+import sys
 from contextlib import contextmanager
+from psycopg2 import sql
+
 from connection import connection
+from logger import logger
 
 
-logging.basicConfig(level=logging.INFO, 
-                    format='%(asctime)s - %(message)s', 
-                    datefmt='%Y-%m-%d %H:%M:%S') 
-logger = logging.getLogger()
+def create_app_tables(connection):
+    """ Creates tables needed for the application if they don't already exist """
+    with connection:
+        with connection.cursor() as cursor:
+            # Create event_type
+            cursor.execute(
+                """
+                    DO $$ BEGIN
+                        CREATE TYPE event_type AS ENUM ('incoming', 'sale');
+                    EXCEPTION
+                        -- Types cannot be recreated easily
+                        -- they dont have "IF NOT EXISTS" modifier either
+                        -- thus catching this specific exception as per:
+                        -- https://www.thetopsites.net/article/50011731.shtml
 
-
-@contextmanager
-def transaction(connection):
-    cursor = connection.cursor()
-    try:
-        yield cursor
-    except:
-        connection.rollback()
-        raise
-    else:
-        connection.commit()
-    finally:
-        connection.close()
-
-
-def create_tables(connection):
-    with transaction(connection):
-        cursor = connection.cursor()
-        cursor.execute(
-            """
-                DO $$ BEGIN
-                    CREATE TYPE event_type AS ENUM ('incoming', 'sale');
+                        WHEN duplicate_object THEN null;
+                    END $$;
+                """
+            )
+            # Create `transactions` table
+            cursor.execute(
+                """
                     CREATE TABLE IF NOT EXISTS transactions (
                         transaction_id uuid PRIMARY KEY,
                         event event_type,
                         timestamp timestamptz,
                         store_number int,
                         item_number int,
-                        value int
+                        amount int
                     );
-                EXCEPTION
-                    -- Types cannot be recreated easily
-                    -- they dont have "IF NOT EXISTS" modifier either
-                    -- thus catching this specific exception as per:
-                    -- https://www.thetopsites.net/article/50011731.shtml
-
-                    WHEN duplicate_object THEN null;
-                END $$;
-            """
-        )
-        cursor.execute(
-            """
-                SELECT *
-                FROM pg_catalog.pg_tables
-                WHERE schemaname != 'pg_catalog' AND 
-                    schemaname != 'information_schema';
-            """
-        )
-        tables = cursor.fetchone()
-        logger.info(tables)
-
+                """
+            )
+            # Create `stores` table
+            cursor.execute(
+                """
+                    CREATE TABLE IF NOT EXISTS stores (
+                        id int PRIMARY KEY
+                );
+                """
+            )
+            # Create `items` table
+            cursor.execute(
+                """
+                    CREATE TABLE IF NOT EXISTS items (
+                        id SERIAL,
+                        item_id int,
+                        store_id int,
+                        amount int,
+                        CONSTRAINT fk_store
+                            FOREIGN KEY(store_id) 
+                                REFERENCES stores(id)
+                                ON DELETE CASCADE
+                );
+                """
+            )
+            logger.info("App tables created!")

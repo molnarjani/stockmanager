@@ -1,9 +1,7 @@
 import json
 
 from kafka import KafkaConsumer
-from consts import (
-    KAFKA_BROKER_URL, KAFKA_EVENTS_TOPIC, KAFKA_ERRORS_TOPIC
-)
+from consts import KAFKA_BROKER_URL, KAFKA_EVENTS_TOPIC, KAFKA_ERRORS_TOPIC
 
 consumer = KafkaConsumer(
     KAFKA_EVENTS_TOPIC,
