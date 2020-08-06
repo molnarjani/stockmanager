@@ -81,3 +81,43 @@ docker-compose exec db psql --user appuser -d appdata -c "select * from items or
 ```
 </p>
 </details>
+
+<details><summary>Services</summary>
+<p>
+
+
+  <details><summary>Importer</summary>
+  <p>
+  
+  - Reads CSV files from input directory (mounted on host `<repo>/importer/input`)
+  - Validates lines imported to schema, sends to Kafka `KAFKA_ERRORS_TOPIC` topic if the data does not match
+  - Send data as JSON encoded as bytestring to Kafka `KAFKA_EVENTS_TOPIC` topic
+
+  </p>
+  </details>
+
+  <details><summary>Service</summary>
+
+  - Reads from on Kafka `KAFKA_EVENTS_TOPIC` topic
+  - Increments or decrements (based on `event_type`, "sale" for decrement, "incoming" for increase) inventory items stored in `postgres` database
+  - Logs events to a Transaction Journal in order to know which event was processed already
+  - Retries events if `event` is `sale` type and item is not existing or amount would be less than 0, in hopes the events for `incoming` items are incoming (:D) but sale events arrived earlier, # of retries is controlled by `KAFKA_EVENT_RETRIES`
+  - Pushes event to `KAFKA_ERRORS_TOPIC` topic if `KAFKA_EVENT_RETRIES` are exceeded
+  <p>
+
+  </p>
+  </details>
+</p>
+</details>
+
+
+<details><summary>TODOs</summary>
+<p>
+  
+- [ ] Add unittest
+- [ ] Share kafka_proucers.py, kafka_consumers.py, event schemas, most constants between services to make code MORE dry
+- [ ] E2E tests
+- [ ] Add UI(eg: some webapp) over `postgres` db with search capabilities so its usable by humanoids
+- [ ] Add service to watch error topic and alert on specified error events (eg: item ran out of stock)
+</p>
+</details>
