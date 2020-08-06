@@ -139,3 +139,4 @@ cython_debug/
 
 example_events/
 importer/input/*.csv
+postgres_data/
