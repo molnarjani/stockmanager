@@ -7,13 +7,12 @@ def process_events(consumer):
         event = message.value
         try:
             process_atomic_transaction_event(event)
-            logger.info("processed event: {}".format(event))
+            # logger.info("processed event: {}".format(event))
         except Exception:
             logger.exception("could not process event: {}".format(event))
 
 
 if __name__ == "__main__":
-    import traceback
     from connection import connection
     from helpers import create_app_tables
     from logger import logger
